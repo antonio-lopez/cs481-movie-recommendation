@@ -1,13 +1,14 @@
 from MovieLoader import MovieLoader
 from surprise import SVD
+from surprise import accuracy
 
-
-def BuildAntiTestSetForUser(testSubject, trainset):
+# produce a test data set of all the movies that the user did not rate already
+def UserAntiTestData(selectedUser, trainset):
     fill = trainset.global_mean
 
     anti_testset = []
     
-    u = trainset.to_inner_uid(str(testSubject))
+    u = trainset.to_inner_uid(str(selectedUser))
     
     user_items = set([j for (j, _) in trainset.ur[u]])
     anti_testset += [(trainset.to_raw_uid(u), trainset.to_raw_iid(i), fill) for
@@ -15,50 +16,49 @@ def BuildAntiTestSetForUser(testSubject, trainset):
                              i not in user_items]
     return anti_testset
 
-# Pick an arbitrary test subject
-testSubject = 672
+selectedUser = 672
 
-ml = MovieLoader()
+movieLoad = MovieLoader()
 
-print("Loading movie ratings...")
-data = ml.loadMovieLensLatestSmall()
+# load movie data
+movies = movieLoad.mLDataLoad()
 
-userRatings = ml.getUserRatings(testSubject)
-loved = []
-hated = []
-for ratings in userRatings:
-    if (float(ratings[1]) > 4.0):
-        loved.append(ratings)
-    if (float(ratings[1]) < 3.0):
-        hated.append(ratings)
+# Get user ratings and append to a seperate list
+ratings = movieLoad.getUserRatings(selectedUser)
+userLike = []
+userDislike = []
+for movieRating in ratings:
+    if (float(movieRating[1]) > 4.0):
+        userLike.append(movieRating)
+    if (float(movieRating[1]) < 3.0):
+        userDislike.append(movieRating)
 
-print("\nUser ", testSubject, " loved these movies:")
-for ratings in loved:
-    print(ml.getMovieName(ratings[0]))
-print("\n...and didn't like these movies:")
-for ratings in hated:
-    print(ml.getMovieName(ratings[0]))
+print("\nThese are the movies that user ", selectedUser, " liked:")
+for movieRating in userLike:
+    print(movieLoad.getMovieName(movieRating[0]))
+print("\nThese are the movies that the user didn't like:")
+for movieRating in userDislike:
+    print(movieLoad.getMovieName(movieRating[0]))
 
-print("\nBuilding recommendation model...")
-trainSet = data.build_full_trainset()
+print("\nBuilding recommendation algorithm...")
+trainSet = movies.build_full_trainset()
+recommendAlgo = SVD()
+recommendAlgo.fit(trainSet) 
+testData = UserAntiTestData(selectedUser, trainSet)
+recommend = recommendAlgo.test(testData)
 
-algo = SVD()
-algo.fit(trainSet)
+# difference between the predicted rating and the actual rating
+accuracy.mae(recommend, verbose=True)
+accuracy.rmse(recommend, verbose=True)
 
-print("Computing recommendations...")
-testSet = BuildAntiTestSetForUser(testSubject, trainSet)
-predictions = algo.test(testSet)
+movieRecommends = []
 
-recommendations = []
-
-print ("\nWe recommend:")
-for userID, movieID, actualRating, estimatedRating, _ in predictions:
+print ("\nThese are the recommended movies for the user:")
+for userID, movieID, actualRating, estimatedRating, _ in recommend:
     intMovieID = int(movieID)
-    recommendations.append((intMovieID, estimatedRating))
+    movieRecommends.append((intMovieID, estimatedRating))
 
-recommendations.sort(key=lambda x: x[1], reverse=True)
-
-for ratings in recommendations[:10]:
-    print(ml.getMovieName(ratings[0]))
+for recommendations in movieRecommends[:20]:
+    print(movieLoad.getMovieName(recommendations[0]))
 
 
