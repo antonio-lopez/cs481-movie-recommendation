@@ -24,7 +24,7 @@ movieLoad = MovieLoader()
 movies = movieLoad.mLDataLoad()
 
 # Get user ratings and append to a seperate list
-ratings = movieLoad.getUserRatings(selectedUser)
+ratings = movieLoad.loadClientRatings(selectedUser)
 userLike = []
 userDislike = []
 for movieRating in ratings:
@@ -35,10 +35,10 @@ for movieRating in ratings:
 
 print("\nThese are the movies that user ", selectedUser, " liked:")
 for movieRating in userLike:
-    print(movieLoad.getMovieName(movieRating[0]))
+    print(movieLoad.getNameOfFilm(movieRating[0]))
 print("\nThese are the movies that the user didn't like:")
 for movieRating in userDislike:
-    print(movieLoad.getMovieName(movieRating[0]))
+    print(movieLoad.getNameOfFilm(movieRating[0]))
 
 print("\nBuilding recommendation algorithm...")
 trainSet = movies.build_full_trainset()
@@ -59,6 +59,6 @@ for userID, movieID, actualRating, estimatedRating, _ in recommend:
     movieRecommends.append((intMovieID, estimatedRating))
 
 for recommendations in movieRecommends[:20]:
-    print(movieLoad.getMovieName(recommendations[0]))
+    print(movieLoad.getNameOfFilm(recommendations[0]))
 
 

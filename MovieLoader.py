@@ -25,7 +25,7 @@ class MovieLoader:
 
         ratingsDS = Dataset.load_from_file(self.pathOfRatings, reader=reader)
 
-        with open(self.pathOfFilms, newOfLine='', encoding='ISO-8859-1') as sourceFile:
+        with open(self.pathOfFilms, newline='', encoding='ISO-8859-1') as sourceFile:
                 filmReader = csv.reader(sourceFile)
                 next(filmReader)  #Skip header line
                 for row in filmReader:
@@ -39,7 +39,7 @@ class MovieLoader:
     def loadClientRatings(self, client):
         clientRatings = []
         hitClient = False
-        with open(self.pathOfRatings, newOfLine='') as sourceFile:
+        with open(self.pathOfRatings, newline='') as sourceFile:
             ratingReader = csv.reader(sourceFile)
             next(ratingReader)
             for row in ratingReader:
