@@ -1,6 +1,6 @@
 # CPSC 481 Movie Recommendation Project
 
-A python based A.I. project that recommends movies based on a recommendation engine.
+A python based A.I. project that recommends movies based on a recommendation engine using Surprise, is an easy-to-use Python scikit for recommender systems.
 
 ## Prerequisites
 
@@ -73,4 +73,4 @@ Directory that contains 4 CSV files with the dataset obtained from [Grouplens](h
 
 * Hunter Gerace
 
-* Dean Su
+* Zhiwei Su
